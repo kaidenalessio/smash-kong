@@ -193,7 +193,15 @@ class KongRoom {
 	render() {}
 }
 
+KONG.Canvas = document.createElement('canvas');
+
 KONG.Room = {
+	w: 300,
+	h: 150,
+	mid: {
+		w: 150,
+		h: 75
+	},
 	list: {},
 	current: new KongRoom(''),
 	previous: new KongRoom(''),
@@ -217,6 +225,14 @@ KONG.Room = {
 	},
 	create(name) {
 		return new KongRoom(name);
+	},
+	resizeEventHandler() {
+		const b = KONG.Canvas.getBoundingClientRect();
+		KONG.Room.w = b.width;
+		KONG.Room.h = b.height;
+		KONG.Room.mid.w = KONG.Room.w * 0.5;
+		KONG.Room.mid.h = KONG.Room.h * 0.5;
+		console.log(`Canvas size: ${KONG.Room.w} x ${KONG.Room.h}`);
 	}
 };
 
@@ -238,6 +254,8 @@ KONG.Game = {
 		window.addEventListener('keydown', KONG.Input.keyDownEventHandler);
 		window.addEventListener('mouseup', KONG.Input.mouseUpEventHandler);
 		window.addEventListener('mousedown', KONG.Input.mouseDownEventHandler);
+		window.addEventListener('resize', KONG.Room.resizeEventHandler);
+		document.body.appendChild(KONG.Canvas);
 	},
 	start() {
 		window.requestAnimationFrame(KONG.Game.update);
@@ -254,38 +272,13 @@ KONG.Game = {
 const ROOM_Menu = KONG.Room.create('Menu');
 
 ROOM_Menu.start = () => {
-	console.log('start menu');
+	console.log('resize browser window to test');
 };
 
-ROOM_Menu.update = () => {
-	// if (KONG.Input.keyDown(KONG.KeyCode.Space)) {
-	// 	KONG.Room.start('Game');
-	// }
-	console.log(KONG.Time.deltaTime.toFixed(2), KONG.Time.time);
-};
-
-ROOM_Menu.render = () => {
-	// console.log('render menu');
-};
-
-const ROOM_Game = KONG.Room.create('Game');
-
-ROOM_Game.start = () => {
-	console.log('start game');
-};
-
-ROOM_Game.update = () => {
-	if (KONG.Input.keyDown(KONG.KeyCode.Space)) {
-		KONG.Room.start('Menu');
-	}
-};
-
-ROOM_Game.render = () => {
-	console.log('render game');
-};
+ROOM_Menu.update = () => {};
+ROOM_Menu.render = () => {};
 
 KONG.Room.add(ROOM_Menu);
-KONG.Room.add(ROOM_Game);
 
 KONG.Game.init();
 KONG.Game.start();
