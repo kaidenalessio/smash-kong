@@ -220,6 +220,17 @@ KONG.Room = {
 	}
 };
 
+KONG.Time = {
+	time: 0,
+	lastTime: 0,
+	deltaTime: 0,
+	update(t) {
+		this.lastTime = this.time;
+		this.time = t;
+		this.deltaTime = this.time - this.lastTime;
+	}
+};
+
 KONG.Game = {
 	init() {
 		KONG.Input.init();
@@ -231,7 +242,8 @@ KONG.Game = {
 	start() {
 		window.requestAnimationFrame(KONG.Game.update);
 	},
-	update() {
+	update(t) {
+		KONG.Time.update(t);
 		KONG.Room.update();
 		KONG.Room.render();
 		KONG.Input.reset();
@@ -246,13 +258,14 @@ ROOM_Menu.start = () => {
 };
 
 ROOM_Menu.update = () => {
-	if (KONG.Input.keyDown(KONG.KeyCode.Space)) {
-		KONG.Room.start('Game');
-	}
+	// if (KONG.Input.keyDown(KONG.KeyCode.Space)) {
+	// 	KONG.Room.start('Game');
+	// }
+	console.log(KONG.Time.deltaTime.toFixed(2), KONG.Time.time);
 };
 
 ROOM_Menu.render = () => {
-	console.log('render menu');
+	// console.log('render menu');
 };
 
 const ROOM_Game = KONG.Room.create('Game');
