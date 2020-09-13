@@ -184,11 +184,41 @@ KONG.Input = {
 	}
 };
 
-const keyCodeKeys = Object.keys(KONG.KeyCode);
-const keyCodeValues = Object.values(KONG.KeyCode);
+class KongRoom {
+	constructor(name) {
+		this.name = name;
+	}
+	start() {}
+	update() {}
+	render() {}
+}
 
-const mouseButtonKeys = Object.keys(KONG.MouseButton);
-const mouseButtonValues = Object.values(KONG.MouseButton);
+KONG.Room = {
+	list: {},
+	current: new KongRoom(''),
+	previous: new KongRoom(''),
+	start(name) {
+		this.previous = this.current;
+		this.current = this.list[name] || null;
+		if (this.current === null) {
+			console.log(`Room not found: ${name}`);
+			this.current = new KongRoom(name);
+		}
+		this.current.start();
+	},
+	update() {
+		this.current.update();
+	},
+	render() {
+		this.current.render();
+	},
+	add(room) {
+		this.list[room.name] = room;
+	},
+	create(name) {
+		return new KongRoom(name);
+	}
+};
 
 KONG.Game = {
 	init() {
@@ -202,56 +232,48 @@ KONG.Game = {
 		window.requestAnimationFrame(KONG.Game.update);
 	},
 	update() {
-		for (let i = KONG.Input.KEYS_LENGTH - 1; i >= 0; --i) {
-
-			let keyCodeIndex = -1;
-
-			for (let j = keyCodeValues.length - 1; j >= 0; --j) {
-				if (keyCodeValues[j] === i) {
-					keyCodeIndex = j;
-					break;
-				}
-			}
-
-			const keyCodeName = `${i} (${keyCodeIndex < 0? 'noname' : keyCodeKeys[keyCodeIndex]})`;
-
-			if (KONG.Input.keyDown(i)) {
-				console.log(keyCodeName, 'down');
-			}
-			if (KONG.Input.keyHold(i)) {
-				console.log(keyCodeName, 'hold');
-			}
-			if (KONG.Input.keyUp(i)) {
-				console.log(keyCodeName, 'up');
-			}
-		}
-		for (let i = KONG.Input.MOUSES_LENGTH - 1; i >= 0; --i) {
-
-			let mouseButtonIndex = -1;
-
-			for (let j = mouseButtonValues.length - 1; j >= 0; --j) {
-				if (mouseButtonValues[j] === i) {
-					mouseButtonIndex = j;
-					break;
-				}
-			}
-
-			const mouseButtonName = `${i} (${mouseButtonIndex < 0? 'noname' : mouseButtonKeys[mouseButtonIndex]})`;
-
-			if (KONG.Input.mouseDown(i)) {
-				console.log(mouseButtonName, 'down');
-			}
-			if (KONG.Input.mouseHold(i)) {
-				console.log(mouseButtonName, 'hold');
-			}
-			if (KONG.Input.mouseUp(i)) {
-				console.log(mouseButtonName, 'up');
-			}
-		}
+		KONG.Room.update();
+		KONG.Room.render();
 		KONG.Input.reset();
 		window.requestAnimationFrame(KONG.Game.update);
 	}
 };
 
+const ROOM_Menu = KONG.Room.create('Menu');
+
+ROOM_Menu.start = () => {
+	console.log('start menu');
+};
+
+ROOM_Menu.update = () => {
+	if (KONG.Input.keyDown(KONG.KeyCode.Space)) {
+		KONG.Room.start('Game');
+	}
+};
+
+ROOM_Menu.render = () => {
+	console.log('render menu');
+};
+
+const ROOM_Game = KONG.Room.create('Game');
+
+ROOM_Game.start = () => {
+	console.log('start game');
+};
+
+ROOM_Game.update = () => {
+	if (KONG.Input.keyDown(KONG.KeyCode.Space)) {
+		KONG.Room.start('Menu');
+	}
+};
+
+ROOM_Game.render = () => {
+	console.log('render game');
+};
+
+KONG.Room.add(ROOM_Menu);
+KONG.Room.add(ROOM_Game);
+
 KONG.Game.init();
 KONG.Game.start();
+KONG.Room.start('Menu');
