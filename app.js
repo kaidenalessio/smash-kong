@@ -420,6 +420,25 @@ KONG.Draw = {
 		this.ctx.rect(x, y, w, h);
 		this.draw(stroke);
 	},
+	circle(x, y, r, stroke=false) {
+		this.ctx.beginPath();
+		this.ctx.arc(x, y, r, 0, 2 * Math.PI);
+		this.draw(stroke);
+	},
+	line(x1, y1, x2, y2) {
+		this.ctx.beginPath();
+		this.ctx.moveTo(x1, y1);
+		this.ctx.lineTo(x2, y2);
+		this.ctx.stroke();
+	},
+	triangle(x1, y1, x2, y2, x3, y3, stroke) {
+		this.ctx.beginPath();
+		this.ctx.moveTo(x1, y1);
+		this.ctx.lineTo(x2, y2);
+		this.ctx.lineTo(x3, y3);
+		this.ctx.closePath();
+		this.draw(stroke);
+	},
 	clear(x, y, w, h) {
 		this.ctx.clearRect(x, y, w, h);
 	}
@@ -458,10 +477,24 @@ ROOM_Menu.start = () => {
 ROOM_Menu.update = () => {};
 
 ROOM_Menu.render = () => {
+	const t = Math.sin(KONG.Time.time * 0.01);
+
 	KONG.Draw.setColor(KONG.C.rebeccaPurple);
 	KONG.Draw.rect(32, 32, 24, 36);
 	KONG.Draw.setColor(KONG.C.lightGoldenRodYellow);
 	KONG.Draw.setStrokeWeight(10);
+	KONG.Draw.draw(true);
+
+	KONG.Draw.setColor(KONG.C.fireBrick);
+	KONG.Draw.circle(400, 111, 82 + t * 5, true);
+
+	KONG.Draw.setColor(KONG.C.salmon);
+	KONG.Draw.line(150 - t * 2, 80, 240, 32 + t * 10);
+
+	KONG.Draw.setColor(KONG.C.moccasin);
+	KONG.Draw.triangle(86, 123 + t * 5, 89 + t * 12, 260, 250, 150 + t * 8);
+	KONG.Draw.setColor(KONG.C.indigo);
+	KONG.Draw.setStrokeWeight(4);
 	KONG.Draw.draw(true);
 };
 
