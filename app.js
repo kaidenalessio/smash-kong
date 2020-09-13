@@ -1,5 +1,32 @@
 const KONG = {};
 
+KONG.Math = {
+	degtorad: Math.PI / 180,
+	radtodeg: 180 / Math.PI,
+	hypot(a, b) {
+		return Math.sqrt(a*a + b*b);
+	},
+	clamp(a, b, c) {
+		return Math.min(c, Math.max(b, a));
+	},
+	range(min, max=0) {
+		return min + Math.random() * (max - min);
+	},
+	lendirx(l, d) {
+		return Math.cos(d * this.degtorad) * l;
+	},
+	lendiry(l, d) {
+		return Math.sin(d * this.degtorad) * l;
+	},
+	linedis(x1, y1, x2, y2) {
+		return this.hypot(x2-x1, y2-y1);
+	},
+	linedir(x1, y1, x2, y2) {
+		const d = 90 - Math.atan2(x2-x1, y2-y1) * Math.radtodeg;
+		return d < 0? d + 360 : d;
+	}
+};
+
 KONG.KeyCode = {
 	Backspace: 8,
 	Tab: 9,
@@ -397,6 +424,31 @@ KONG.C = {
 	yellowGreen: '#9acd32'
 };
 
+KONG.Font = {
+	Bold: 'bold ',
+	Italic: 'italic ',
+	BoldItalic: 'bold italic ',
+	Normal: '',
+	create(size, style, family) {
+		return `${style}${size}px ${family? `${family}, ` : ''}sans-serif`;
+	}
+};
+
+KONG.Font.s = KONG.Font.create(12, KONG.Font.Normal, 'Montserrat');
+KONG.Font.m = KONG.Font.create(24, KONG.Font.Normal, 'Montserrat');
+KONG.Font.l = KONG.Font.create(36, KONG.Font.Normal, 'Montserrat');
+KONG.Font.xl = KONG.Font.create(48, KONG.Font.Normal, 'Montserrat');
+KONG.Font.xxl = KONG.Font.create(72, KONG.Font.Normal, 'Montserrat');
+
+KONG.Align = {
+	l: 'left',
+	r: 'right',
+	c: 'center',
+	t: 'top',
+	b: 'bottom',
+	m: 'middle'
+};
+
 KONG.Draw = {
 	ctx: KONG.Canvas.getContext('2d'),
 	setFill(c) {
@@ -411,6 +463,22 @@ KONG.Draw = {
 	},
 	setStrokeWeight(n) {
 		this.ctx.lineWidth = n;
+	},
+	setFont(font) {
+		this.ctx.font = font;
+	},
+	setHAlign(align) {
+		this.ctx.textAlign = align;
+	},
+	setVAlign(align) {
+		this.ctx.textBaseline = align;
+	},
+	setHVAlign(h, v) {
+		this.ctx.textAlign = h;
+		this.ctx.textBaseline = v;
+	},
+	text(x, y, text) {
+		this.ctx.fillText(text, x, y);
 	},
 	draw(stroke=false) {
 		stroke? this.ctx.stroke() : this.ctx.fill();
@@ -496,6 +564,11 @@ ROOM_Menu.render = () => {
 	KONG.Draw.setColor(KONG.C.indigo);
 	KONG.Draw.setStrokeWeight(4);
 	KONG.Draw.draw(true);
+
+	KONG.Draw.setFont(KONG.Font.m);
+	KONG.Draw.setHVAlign(KONG.Align.r, KONG.Align.b);
+	KONG.Draw.setColor(KONG.C.midnightBlue);
+	KONG.Draw.text(KONG.Room.w - 12, KONG.Room.h - 12, `(${~~KONG.Room.w}, ${~~KONG.Room.h})`);
 };
 
 KONG.Room.add(ROOM_Menu);
