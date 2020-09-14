@@ -512,6 +512,47 @@ KONG.Draw = {
 	}
 };
 
+class KongObject {
+	constructor(x, y) {
+		this.x = x;
+		this.y = y;
+	}
+	start() {}
+	update() {}
+	render() {}
+}
+
+KONG.OBJ = {
+	list: [],
+	names: {},
+	getId(name) {
+		return this.names[name];
+	},
+	add(name) {
+		this.names[name] = this.list.length;
+		this.list.push([]);
+	},
+	push(name, instance) {
+		this.list[this.names[name]].push(instance);
+	},
+	update() {
+		for (let i = this.list.length - 1; i >= 0; --i) {
+			const o = this.list[i];
+			for (let j = o.length - 1; j >= 0; --j) {
+				o[j].update();
+			}
+		}
+	},
+	render() {
+		for (let i = this.list.length - 1; i >= 0; --i) {
+			const o = this.list[i];
+			for (let j = o.length - 1; j >= 0; --j) {
+				o[j].render();
+			}
+		}
+	}
+};
+
 KONG.Game = {
 	init() {
 		KONG.Input.init();
@@ -531,14 +572,54 @@ KONG.Game = {
 		KONG.Room.update();
 		KONG.Draw.clear(0, 0, KONG.Room.w, KONG.Room.h);
 		KONG.Room.render();
+		KONG.OBJ.update();
+		KONG.OBJ.render();
 		KONG.Input.reset();
 		window.requestAnimationFrame(KONG.Game.update);
 	}
 };
 
+class OBJ_Player extends KongObject {
+	constructor(x, y, c, keyCode) {
+		super(x, y);
+		this.c = c;
+		this.w = 32;
+		this.h = 32;
+		this.vx = 0;
+		this.vy = 0;
+		this.keyCode = keyCode;
+	}
+	update() {
+		this.vx = KONG.Input.keyHold(this.keyCode.Right) - KONG.Input.keyHold(this.keyCode.Left);
+		this.vy = KONG.Input.keyHold(this.keyCode.Down) - KONG.Input.keyHold(this.keyCode.Up);
+		this.x += this.vx;
+		this.y += this.vy;
+	}
+	render() {
+		KONG.Draw.setColor(this.c);
+		KONG.Draw.rect(this.x - this.w * 0.5, this.y - this.h, this.w, this.h);
+		KONG.Draw.setColor(KONG.C.black);
+		KONG.Draw.circle(this.x, this.y, 4);
+	}
+}
+
+KONG.OBJ.add('Player');
+
 const ROOM_Menu = KONG.Room.create('Menu');
 
 ROOM_Menu.start = () => {
+	KONG.OBJ.push('Player', new OBJ_Player(KONG.Room.mid.w, KONG.Room.mid.h, KONG.C.blueViolet, {
+		Up: KONG.KeyCode.Up,
+		Left: KONG.KeyCode.Left,
+		Down: KONG.KeyCode.Down,
+		Right: KONG.KeyCode.Right
+	}));
+	KONG.OBJ.push('Player', new OBJ_Player(KONG.Room.mid.w + 96, KONG.Room.mid.h - 32, KONG.C.steelBlue, {
+		Up: KONG.KeyCode.W,
+		Left: KONG.KeyCode.A,
+		Down: KONG.KeyCode.S,
+		Right: KONG.KeyCode.D
+	}));
 	console.log('menu start');
 };
 
