@@ -516,6 +516,9 @@ class KongObject {
 	constructor(x, y) {
 		this.x = x;
 		this.y = y;
+		this.depth = 0;
+		this.active = true;
+		this.visible = true;
 	}
 	start() {}
 	update() {}
@@ -537,18 +540,23 @@ KONG.OBJ = {
 	},
 	update() {
 		for (let i = this.list.length - 1; i >= 0; --i) {
-			const o = this.list[i];
-			for (let j = o.length - 1; j >= 0; --j) {
-				o[j].update();
+			for (let j = this.list[i].length - 1; j >= 0; --j) {
+				const k = this.list[i][j];
+				if (k.active) k.update();
 			}
 		}
 	},
 	render() {
+		const h = [];
 		for (let i = this.list.length - 1; i >= 0; --i) {
-			const o = this.list[i];
-			for (let j = o.length - 1; j >= 0; --j) {
-				o[j].render();
+			for (let j = this.list[i].length - 1; j >= 0; --j) {
+				const k = this.list[i][j];
+				if (k.visible) h.push(k);
 			}
+		}
+		h.sort((a, b) => a.depth < b.depth? -1 : 1);
+		for (let i = h.length - 1; i >= 0; --i) {
+			h[i].render();
 		}
 	}
 };
@@ -594,6 +602,8 @@ class OBJ_Player extends KongObject {
 		this.vy = KONG.Input.keyHold(this.keyCode.Down) - KONG.Input.keyHold(this.keyCode.Up);
 		this.x += this.vx;
 		this.y += this.vy;
+		this.depth = -this.y;
+		this.visible = !KONG.Input.keyHold(KONG.KeyCode.Space);
 	}
 	render() {
 		KONG.Draw.setColor(this.c);
